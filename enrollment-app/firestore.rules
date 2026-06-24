@@ -1,0 +1,77 @@
+rules_version = '2';
+
+// ─────────────────────────────────────────────────────────────────────────
+// Enrollment System — Firestore Security Rules
+//
+// Security model (NFR-3):
+//   • Public (unauthenticated) users may ONLY create enrollment documents.
+//   • Only authenticated admins may read / update / delete enrollments.
+//   • The `meta/counters` document is readable + atomically incrementable by
+//     the public (required to mint sequential enrollment IDs in a transaction),
+//     but it can only ever move forward by exactly one step.
+//   • The `admins` collection is managed from the Firebase console only.
+// ─────────────────────────────────────────────────────────────────────────
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ── Enrollments ───────────────────────────────────────────────────────
+    match /enrollments/{id} {
+
+      function incomingIsValid() {
+        let d = request.resource.data;
+        return d.keys().hasAll(['enrollmentId', 'fullName', 'email', 'phone', 'program', 'status', 'createdAt'])
+          && d.fullName is string && d.fullName.size() > 0
+          && d.email is string && d.email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$')
+          && d.phone is string && d.phone.size() >= 6
+          && d.program is string
+          && d.status == 'new'
+          && d.createdAt == request.time;
+      }
+
+      allow create: if incomingIsValid();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Duplicate guard markers (FR-1.4) ──────────────────────────────────
+    // Doc id = normalised email or phone. Public users may check existence
+    // (get) and reserve a marker (create) as part of the enrollment
+    // transaction. Markers carry no PII beyond the key itself and cannot be
+    // listed. Only admins may modify or remove them.
+    match /dupKeys/{key} {
+      allow get, create: if true;
+      allow list: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Sequence counter (public transaction support) ─────────────────────
+    match /meta/counters {
+      allow read: if true;
+
+      // Allow first-time initialisation or a strict +1 increment.
+      allow create: if request.resource.data.enrollmentSeq is int;
+      allow update: if request.resource.data.enrollmentSeq ==
+                       resource.data.enrollmentSeq + 1;
+      allow delete: if isAdmin();
+    }
+
+    // Any other meta documents are admin-only.
+    match /meta/{doc} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Admin registry (console-managed) ──────────────────────────────────
+    match /admins/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+  }
+}

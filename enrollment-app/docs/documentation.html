@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Enrollment System — Technical Documentation</title>
+<style>
+  :root {
+    --brand: #4f46e5;
+    --brand-light: #eef2ff;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --code-bg: #f8fafc;
+    --green: #16a34a;
+    --amber: #d97706;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    font-size: 11px;
+    line-height: 1.55;
+    margin: 0;
+  }
+  h1, h2, h3, h4 { color: #0f172a; line-height: 1.25; }
+  h2 {
+    font-size: 18px; margin: 0 0 10px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--brand);
+  }
+  h3 { font-size: 13.5px; margin: 18px 0 6px; color: var(--brand); }
+  h4 { font-size: 11.5px; margin: 12px 0 4px; }
+  p { margin: 6px 0; }
+  a { color: var(--brand); text-decoration: none; }
+  code {
+    font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+    background: var(--code-bg); border: 1px solid var(--line);
+    border-radius: 3px; padding: 0.5px 4px; font-size: 9.8px; color: #0f172a;
+  }
+  pre {
+    background: #0f172a; color: #e2e8f0; border-radius: 6px;
+    padding: 11px 14px; font-size: 9.3px; line-height: 1.5;
+    overflow-x: auto; white-space: pre;
+    font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+  }
+  pre code { background: none; border: none; color: inherit; padding: 0; font-size: 9.3px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9.8px; }
+  th, td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--brand-light); color: #312e81; font-weight: 600; }
+  tr:nth-child(even) td { background: #fafbff; }
+  ul, ol { margin: 6px 0; padding-left: 20px; }
+  li { margin: 2.5px 0; }
+  .section { page-break-before: always; padding-top: 4px; }
+  .nobreak { page-break-inside: avoid; }
+  .tag {
+    display: inline-block; background: var(--brand-light); color: #312e81;
+    border-radius: 20px; padding: 1px 9px; font-size: 8.6px; font-weight: 600;
+    margin-right: 4px;
+  }
+  .note {
+    border-left: 3px solid var(--brand); background: var(--brand-light);
+    padding: 8px 12px; margin: 10px 0; border-radius: 0 4px 4px 0; font-size: 10px;
+  }
+  .warn {
+    border-left: 3px solid var(--amber); background: #fffbeb;
+    padding: 8px 12px; margin: 10px 0; border-radius: 0 4px 4px 0; font-size: 10px;
+  }
+  .ok {
+    border-left: 3px solid var(--green); background: #f0fdf4;
+    padding: 8px 12px; margin: 10px 0; border-radius: 0 4px 4px 0; font-size: 10px;
+  }
+  /* Cover */
+  .cover {
+    height: 100vh; display: flex; flex-direction: column; justify-content: center;
+    page-break-after: always; text-align: center;
+  }
+  .cover .logo {
+    width: 74px; height: 74px; border-radius: 18px; background: var(--brand);
+    color: #fff; font-size: 40px; font-weight: 700; line-height: 74px;
+    margin: 0 auto 22px;
+  }
+  .cover h1 { font-size: 34px; margin: 0 0 8px; }
+  .cover .sub { color: var(--muted); font-size: 14px; }
+  .cover .meta { margin-top: 36px; font-size: 11px; color: var(--muted); }
+  .cover .stack { margin-top: 26px; }
+  .toc ol { font-size: 11.5px; line-height: 1.9; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .ascii {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px; font-family: "SF Mono", Consolas, monospace; font-size: 8.6px;
+    line-height: 1.35; white-space: pre; color: #334155;
+  }
+  .pill-new { color: var(--amber); font-weight: 600; }
+  .pill-ok { color: var(--green); font-weight: 600; }
+  .small { font-size: 9px; color: var(--muted); }
+  footer { margin-top: 30px; padding-top: 10px; border-top: 1px solid var(--line);
+           font-size: 9px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ COVER ════════════════ -->
+<div class="cover">
+  <div class="logo">E</div>
+  <h1>Enrollment System</h1>
+  <div class="sub">Technical Documentation &amp; Operations Guide</div>
+  <div class="stack">
+    <span class="tag">React 18</span>
+    <span class="tag">Vite</span>
+    <span class="tag">TypeScript</span>
+    <span class="tag">Tailwind CSS</span>
+    <span class="tag">Firebase Firestore</span>
+    <span class="tag">Firebase Auth</span>
+    <span class="tag">Recharts</span>
+    <span class="tag">SheetJS</span>
+  </div>
+  <div class="meta">
+    Configuration &bull; Running &bull; Workflow &bull; Technical Details<br>
+    Version 1.0 &nbsp;|&nbsp; Prepared for project handover
+  </div>
+</div>
+
+<!-- ════════════════ TOC ════════════════ -->
+<div class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li>System Overview</li>
+    <li>Technology Stack</li>
+    <li>Architecture</li>
+    <li>Project Structure</li>
+    <li>Configuration</li>
+    <li>How to Run</li>
+    <li>Application Workflow</li>
+    <li>Technical Details</li>
+    <li>Data Model</li>
+    <li>Security Rules</li>
+    <li>Build &amp; Deployment</li>
+    <li>Testing &amp; Verification</li>
+    <li>Troubleshooting</li>
+    <li>Requirement Traceability</li>
+    <li>Appendix — Quick Reference</li>
+  </ol>
+</div>
+
+<!-- ════════════════ 1. OVERVIEW ════════════════ -->
+<div class="section">
+  <h2>1. System Overview</h2>
+  <p>The Enrollment System is a web application that does two things:</p>
+  <ol>
+    <li><b>Collects enrollment information</b> from end users through a public, mobile-friendly form.</li>
+    <li><b>Consolidates all submissions</b> into an admin dashboard with summary statistics, charts, a searchable/filterable table, and CSV/Excel export.</li>
+  </ol>
+  <p>It is a <b>serverless single-page application</b>: the browser talks directly to Firebase Cloud Firestore, and all access control is enforced by Firestore Security Rules. There is no backend server to deploy or maintain.</p>
+
+  <h3>Two user roles</h3>
+  <table>
+    <tr><th>Role</th><th>Access</th><th>Capabilities</th></tr>
+    <tr>
+      <td><b>Public user</b></td>
+      <td>No login required</td>
+      <td>Open the enrollment form, submit details, receive a unique reference number (e.g. <code>ENR-2026-00042</code>). Cannot read anyone's data.</td>
+    </tr>
+    <tr>
+      <td><b>Admin</b></td>
+      <td>Email/password login</td>
+      <td>View dashboard stats &amp; charts, browse/search/filter/sort enrollments, open record detail, change status, export reports.</td>
+    </tr>
+  </table>
+
+  <h3>Key design principle — config-driven form</h3>
+  <p>Every form field (name, label, type, validation, options) is declared in a single file, <code>src/config/formSchema.ts</code>. The public form, the validation schema, the admin table columns, and the export are all derived from it. When the field list changes, you edit that one file — nothing else.</p>
+</div>
+
+<!-- ════════════════ 2. TECH STACK ════════════════ -->
+<div class="section">
+  <h2>2. Technology Stack</h2>
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Why</th></tr>
+    <tr><td>Frontend framework</td><td>React 18 + Vite</td><td>Fast HMR dev server, modern build, lazy code-splitting</td></tr>
+    <tr><td>Language</td><td>TypeScript 5</td><td>Type safety across the data layer and components</td></tr>
+    <tr><td>Styling</td><td>Tailwind CSS 3</td><td>Rapid, consistent, responsive styling</td></tr>
+    <tr><td>Forms &amp; validation</td><td>React Hook Form + Zod</td><td>Declarative, schema-derived validation</td></tr>
+    <tr><td>Routing</td><td>React Router DOM 6</td><td>Public + guarded admin routes</td></tr>
+    <tr><td>Database</td><td>Firebase Cloud Firestore</td><td>Serverless NoSQL, real-time, free tier</td></tr>
+    <tr><td>Authentication</td><td>Firebase Auth (email/password)</td><td>Secure admin login, no custom auth code</td></tr>
+    <tr><td>Charts</td><td>Recharts</td><td>Dashboard line / bar / pie charts</td></tr>
+    <tr><td>Export</td><td>SheetJS (xlsx)</td><td>CSV &amp; Excel export of filtered data</td></tr>
+    <tr><td>Dates</td><td>date-fns</td><td>Timezone-aware formatting</td></tr>
+    <tr><td>Hosting</td><td>Firebase Hosting</td><td>Free SSL + CDN + custom domain</td></tr>
+    <tr><td>Local backend</td><td>Firebase Emulator Suite</td><td>Run Auth + Firestore locally, no cloud project needed</td></tr>
+  </table>
+  <div class="note"><b>Requirements:</b> Node.js 18+ (tested on 22), npm 10+, and <b>Java</b> on the PATH (the Firestore emulator is a Java process). The Firebase CLI (<code>firebase-tools</code>) is needed only for the emulator and deployment.</div>
+</div>
+
+<!-- ════════════════ 3. ARCHITECTURE ════════════════ -->
+<div class="section">
+  <h2>3. Architecture</h2>
+  <div class="ascii">┌─────────────────────┐                 ┌─────────────────────┐
+│   Public User        │                 │   Admin User         │
+│   (Browser / Mobile) │                 │   (Browser)          │
+└──────────┬──────────┘                 └──────────┬──────────┘
+           │ HTTPS                                  │ HTTPS
+           ▼                                        ▼
+┌──────────────────────────────────────────────────────────────┐
+│              Firebase Hosting  (CDN + SSL)                     │
+│              React SPA  (Vite build, code-split)              │
+│   ┌─────────────────┐            ┌──────────────────────────┐ │
+│   │  /  /success     │            │  /admin/*                │ │
+│   │  (public form)   │            │  (auth-guarded)          │ │
+│   └────────┬────────┘            └────────────┬─────────────┘ │
+└────────────┼───────────────────────────────────┼─────────────┘
+             │ create only                        │ read / update / delete
+             │ (+ counter txn)                    │ (admin only)
+             ▼                                    ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Cloud Firestore                            │
+│   enrollments   meta/counters   dupKeys   admins              │
+│   ── enforced by firestore.rules ──                           │
+├──────────────────────────────────────────────────────────────┤
+│   Firebase Authentication  (admin email/password)             │
+└──────────────────────────────────────────────────────────────┘</div>
+
+  <h3>How requests are secured</h3>
+  <ul>
+    <li><b>No server-side trust boundary is bypassed</b> — even though the browser writes directly to Firestore, the Security Rules reject anything that doesn't match the allowed shape and role.</li>
+    <li>The <b>public bundle</b> only ships the enrollment form; the admin code (charts, export, table) is lazy-loaded on demand, keeping the public page fast.</li>
+  </ul>
+</div>
+
+<!-- ════════════════ 4. STRUCTURE ════════════════ -->
+<div class="section">
+  <h2>4. Project Structure</h2>
+  <div class="ascii">enrollment-app/
+├── src/
+│   ├── config/
+│   │   ├── formSchema.ts      ← SINGLE SOURCE OF TRUTH for form fields
+│   │   └── validation.ts      ← Zod schema built dynamically from formSchema
+│   ├── lib/
+│   │   ├── firebase.ts        ← Firebase init (+ emulator wiring)
+│   │   ├── enrollments.ts     ← All Firestore reads/writes, counter txn, stats
+│   │   ├── export.ts          ← CSV / Excel export (SheetJS)
+│   │   └── format.ts          ← Date / label / phone helpers
+│   ├── context/AuthContext.tsx← Auth state + isAdmin resolution
+│   ├── hooks/useEnrollments.ts← Paginated table data hook
+│   ├── components/            ← FormField, StatCard, DataTable, Charts,
+│   │                            ProtectedRoute, Spinner
+│   ├── pages/
+│   │   ├── EnrollPage.tsx      ← public enrollment form
+│   │   ├── SuccessPage.tsx     ← reference-number screen
+│   │   └── admin/
+│   │       ├── LoginPage.tsx
+│   │       ├── AdminLayout.tsx
+│   │       ├── DashboardPage.tsx     ← cards + charts
+│   │       ├── EnrollmentsPage.tsx   ← table, search, filter, export
+│   │       └── EnrollmentDetail.tsx  ← detail + status update
+│   ├── types/enrollment.ts
+│   ├── App.tsx                ← routes + auth guard (admin lazy-loaded)
+│   └── main.tsx
+├── scripts/
+│   ├── seed.mjs               ← demo data seeder (emulator)
+│   ├── verify.mjs             ← security-rule + data-path tests
+│   └── e2e.mjs                ← headless-browser UI test
+├── firestore.rules           ← security rules
+├── firestore.indexes.json    ← composite indexes
+├── firebase.json             ← Hosting + emulator config
+├── .env.example              ← environment variable template
+├── README.md  /  ADMIN_GUIDE.md
+└── package.json</div>
+  <p class="small">Total application source: ~2,100 lines of TypeScript/TSX across 30 files.</p>
+</div>
+
+<!-- ════════════════ 5. CONFIGURATION ════════════════ -->
+<div class="section">
+  <h2>5. Configuration</h2>
+
+  <h3>5.1 Environment variables</h3>
+  <p>Copy <code>.env.example</code> to <code>.env</code> and fill in values. All variables are prefixed <code>VITE_</code> so Vite exposes them to the browser bundle.</p>
+  <table>
+    <tr><th>Variable</th><th>Purpose</th><th>Example</th></tr>
+    <tr><td><code>VITE_FIREBASE_API_KEY</code></td><td>Firebase web API key</td><td>AIza…</td></tr>
+    <tr><td><code>VITE_FIREBASE_AUTH_DOMAIN</code></td><td>Auth domain</td><td>my-proj.firebaseapp.com</td></tr>
+    <tr><td><code>VITE_FIREBASE_PROJECT_ID</code></td><td>Project ID</td><td>my-proj</td></tr>
+    <tr><td><code>VITE_FIREBASE_STORAGE_BUCKET</code></td><td>Storage bucket</td><td>my-proj.appspot.com</td></tr>
+    <tr><td><code>VITE_FIREBASE_MESSAGING_SENDER_ID</code></td><td>Sender ID</td><td>123456789</td></tr>
+    <tr><td><code>VITE_FIREBASE_APP_ID</code></td><td>App ID</td><td>1:123…:web:abc</td></tr>
+    <tr><td><code>VITE_USE_EMULATOR</code></td><td><code>true</code> → use local emulators</td><td>false</td></tr>
+    <tr><td><code>VITE_BLOCK_DUPLICATES</code></td><td>Block repeat email/phone (FR-1.4)</td><td>true</td></tr>
+    <tr><td><code>VITE_EMULATOR_HOST</code></td><td>Emulator host (emulator mode)</td><td>127.0.0.1</td></tr>
+    <tr><td><code>VITE_FIRESTORE_EMULATOR_PORT</code></td><td>Firestore emulator port</td><td>8080</td></tr>
+    <tr><td><code>VITE_AUTH_EMULATOR_PORT</code></td><td>Auth emulator port</td><td>9099</td></tr>
+  </table>
+  <p>Where to find Firebase values: <b>Firebase Console → Project Settings → Your apps → Web app → SDK setup and configuration</b>.</p>
+
+  <h3>5.2 Configuring the form fields</h3>
+  <p>Edit <code>src/config/formSchema.ts</code>. Each field is one object:</p>
+  <pre><code>{
+  name: 'fullName',          // dot-path; "address.city" nests into an object
+  label: 'Full Name',
+  type: 'text',              // text | email | tel | date | select | textarea
+  required: true,
+  placeholder: 'Jane Doe',
+  pattern: '^[+]?[0-9 ()-]{6,20}$',   // optional regex (text/tel)
+  patternMessage: 'Enter a valid phone number.',
+  options: [...],            // for 'select'
+  section: 'Personal Details',// groups fields under a heading
+  showInTable: true          // show as an admin table column
+}</code></pre>
+  <p>The dropdown option lists (<code>PROGRAM_OPTIONS</code>, gender, source) and the <code>STATUS_OPTIONS</code> live in the same file. Adding a program is a one-line change.</p>
+  <div class="ok"><b>Why this matters:</b> the client's exact field list is still being finalised. Because the form is config-driven, applying their answers is a minutes-long edit to one file, not a rewrite.</div>
+
+  <h3>5.3 Firebase / Firestore configuration files</h3>
+  <table>
+    <tr><th>File</th><th>Role</th></tr>
+    <tr><td><code>firebase.json</code></td><td>Hosting target (<code>dist/</code>) + emulator ports (Auth 9099, Firestore 8080, UI 4000, Hosting 5000)</td></tr>
+    <tr><td><code>firestore.rules</code></td><td>Access-control rules (see §10)</td></tr>
+    <tr><td><code>firestore.indexes.json</code></td><td>Composite indexes for program/status + createdAt queries</td></tr>
+    <tr><td><code>.firebaserc</code></td><td>Default project alias</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════ 6. HOW TO RUN ════════════════ -->
+<div class="section">
+  <h2>6. How to Run</h2>
+
+  <h3>Option A — Local with Firebase Emulator (recommended for dev/demo)</h3>
+  <p>No real Firebase project required. Requires the Firebase CLI and Java.</p>
+  <pre><code># one-time
+npm install
+npm install -g firebase-tools        # if not already installed
+cp .env.example .env                 # then set VITE_USE_EMULATOR=true
+
+# run (three terminals)
+npm run emulators                    # 1) Auth + Firestore + Emulator UI
+npm run seed                         # 2) create admin + 40 sample records
+npm run dev                          # 3) app at http://localhost:3000</code></pre>
+  <p>Then open <b>http://localhost:3000/</b>. Sign in to the admin area at <b>/admin/login</b> with the seeded account:</p>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Email</td><td><code>admin@enroll.test</code></td></tr>
+    <tr><td>Password</td><td><code>admin123</code></td></tr>
+  </table>
+  <div class="warn"><b>Port already in use?</b> If port 8080 (or 9099) is taken on your machine, run the emulator on alternate ports and set <code>VITE_FIRESTORE_EMULATOR_PORT</code> / <code>VITE_AUTH_EMULATOR_PORT</code> in <code>.env</code> to match. The app reads the emulator host/ports from those variables.</div>
+
+  <h3>Option B — Real Firebase project</h3>
+  <ol>
+    <li>Create a Firebase project; enable <b>Firestore</b>, <b>Authentication → Email/Password</b>, and <b>Hosting</b>.</li>
+    <li>Copy the web app config into <code>.env</code>; keep <code>VITE_USE_EMULATOR=false</code>.</li>
+    <li>Create an admin user in Authentication → Add user.</li>
+    <li>In Firestore, create a document in collection <code>admins</code> with <b>document ID = that user's UID</b> and fields <code>{ email, role: "admin", active: true }</code>.</li>
+    <li>Deploy rules &amp; indexes, then run the app:
+      <pre><code>firebase deploy --only firestore:rules,firestore:indexes
+npm run dev</code></pre>
+    </li>
+  </ol>
+
+  <h3>npm scripts reference</h3>
+  <table>
+    <tr><th>Script</th><th>Action</th></tr>
+    <tr><td><code>npm run dev</code></td><td>Vite dev server on :3000</td></tr>
+    <tr><td><code>npm run build</code></td><td>Type-check + production build to <code>dist/</code></td></tr>
+    <tr><td><code>npm run preview</code></td><td>Preview the production build locally</td></tr>
+    <tr><td><code>npm run lint</code></td><td><code>tsc --noEmit</code> type-check</td></tr>
+    <tr><td><code>npm run emulators</code></td><td>Start Auth + Firestore + Hosting emulators</td></tr>
+    <tr><td><code>npm run seed</code></td><td>Seed admin user + 40 demo enrollments</td></tr>
+    <tr><td><code>npm run verify:rules</code></td><td>Run security-rule / data-path tests</td></tr>
+    <tr><td><code>npm run verify:e2e</code></td><td>Run headless-browser UI test</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════ 7. WORKFLOW ════════════════ -->
+<div class="section">
+  <h2>7. Application Workflow</h2>
+
+  <h3>7.1 Public enrollment flow</h3>
+  <div class="ascii">User opens "/"                     EnrollPage renders fields from formSchema
+      │
+      ▼
+Fills form ─────────────────────►  React Hook Form + Zod validate on blur/submit
+      │ (valid)
+      ▼
+Clicks "Submit Enrollment"
+      │
+      ▼
+createEnrollment()  ── single Firestore transaction ──────────────────────┐
+      │   1. read meta/counters                                            │
+      │   2. (if enabled) check dupKeys/email:… and dupKeys/phone:…        │
+      │   3. compute next sequence → ENR-2026-00043                        │
+      │   4. write enrollment (status:"new", serverTimestamp)              │
+      │   5. write +1 counter, write dup-key markers                       │
+      └───────────────────────────────────────────────────────────────────┘
+      │ (success)                        │ (duplicate)
+      ▼                                  ▼
+Navigate to /success              Inline error: "…already exists"
+Show reference number             User can correct &amp; resubmit</div>
+  <ul>
+    <li><b>Validation (FR-1.3):</b> required fields, email format, phone pattern, valid date — all derived from the field config via Zod.</li>
+    <li><b>Duplicate prevention (FR-1.4):</b> toggled by <code>VITE_BLOCK_DUPLICATES</code>; enforced inside the transaction so it is race-safe.</li>
+    <li><b>Reference number (FR-1.5/1.6):</b> sequential, human-readable, shown on the success screen.</li>
+  </ul>
+
+  <h3>7.2 Admin flow</h3>
+  <div class="ascii">/admin/login ──► Firebase Auth sign-in ──► AuthContext resolves admins/{uid}
+                                                  │
+                        ┌─────────────────────────┼─────────────────────────┐
+                        ▼                          ▼                         ▼
+                  Dashboard                  Enrollments table        Enrollment detail
+                  • stat cards               • search / filter        • all fields
+                  • over-time line           • sort columns           • change status
+                  • by-program bar/pie       • paginate 25/page       •   (new/verified/
+                                             • export CSV / Excel          rejected)</div>
+  <ul>
+    <li><b>Auth guard:</b> <code>ProtectedRoute</code> blocks <code>/admin/*</code> unless the signed-in user has an <code>admins/{uid}</code> document.</li>
+    <li><b>Live status update:</b> changing a record's status writes immediately to Firestore.</li>
+    <li><b>Export respects filters:</b> the exported file contains exactly the records matching the current search/filter.</li>
+  </ul>
+</div>
+
+<!-- ════════════════ 8. TECHNICAL DETAILS ════════════════ -->
+<div class="section">
+  <h2>8. Technical Details</h2>
+
+  <h3>8.1 Config-driven form &amp; dynamic validation</h3>
+  <p><code>validation.ts</code> walks <code>FORM_FIELDS</code> and builds a Zod object schema at runtime — including nesting dot-path names like <code>address.city</code> into sub-objects. Required string fields get a non-empty check; emails get a regex; optional fields accept empty strings. <code>FormField.tsx</code> renders the correct input (text/select/textarea/date) purely from the field's <code>type</code>.</p>
+
+  <h3>8.2 Enrollment creation (atomic, race-safe)</h3>
+  <p><code>createEnrollment()</code> in <code>lib/enrollments.ts</code> runs everything in one <code>runTransaction</code>: all reads (counter, dup markers) happen first, then all writes. This guarantees sequential IDs and duplicate prevention even under concurrent submissions.</p>
+  <pre><code>ENR-&lt;year&gt;-&lt;seq:5&gt;       // e.g. ENR-2026-00042
+serverTimestamp()         // createdAt, stored in UTC
+createdDate: "YYYY-MM-DD" // duplicate-free date for range queries
+dupKey: "email|phone"     // composite key (audit)</code></pre>
+
+  <h3>8.3 Duplicate guard without exposing data</h3>
+  <p>Public users cannot read the <code>enrollments</code> collection, so a normal "query before insert" check is impossible. Instead the app uses tiny marker documents in a <code>dupKeys</code> collection (IDs <code>email:…</code> and <code>phone:…</code>). Rules allow <i>existence checks</i> and <i>creation</i> but not listing — so duplicates are blocked without leaking who enrolled.</p>
+
+  <h3>8.4 Pagination strategy (scales to 10k+ — NFR-5)</h3>
+  <table>
+    <tr><th>Situation</th><th>Strategy</th></tr>
+    <tr><td>No search / no date range</td><td>Cursor-based server pagination (25/page) via <code>startAfter</code> — cheap, scales indefinitely.</td></tr>
+    <tr><td>Search or date range active</td><td>Fetch the equality-filtered set (program/status) and paginate + full-text filter client-side — Firestore has no native text search.</td></tr>
+  </table>
+
+  <h3>8.5 Dashboard statistics</h3>
+  <p>Summary cards use Firestore <code>getCountFromServer</code> aggregation (counts without downloading documents). Per-program counts are six cheap aggregation queries. The time-series chart groups the most recent records by day.</p>
+
+  <h3>8.6 Export</h3>
+  <p><code>lib/export.ts</code> flattens each enrollment (including nested address) into a labelled row and uses SheetJS to produce <code>.xlsx</code> (with column widths) or <code>.csv</code>. The download filename is timestamped.</p>
+
+  <h3>8.7 Auth &amp; route guarding</h3>
+  <p><code>AuthContext</code> subscribes to <code>onAuthStateChanged</code>; on sign-in it reads <code>admins/{uid}</code> to decide <code>isAdmin</code> (and honours an <code>active</code> flag). <code>ProtectedRoute</code> redirects non-admins to the login page, preserving the intended destination.</p>
+
+  <h3>8.8 Performance (NFR-2)</h3>
+  <p>The admin bundle (Recharts + SheetJS) is lazy-loaded with <code>React.lazy</code>, so the public enrollment form downloads only what it needs. Timestamps are stored in UTC and displayed in the visitor's local timezone (NFR-6).</p>
+</div>
+
+<!-- ════════════════ 9. DATA MODEL ════════════════ -->
+<div class="section">
+  <h2>9. Data Model</h2>
+
+  <h3>Collection: <code>enrollments/{autoId}</code></h3>
+  <pre><code>{
+  "enrollmentId": "ENR-2026-00042",   // human-readable, sequential
+  "fullName":   "Jane Doe",
+  "email":      "jane@example.com",
+  "emailLower": "jane@example.com",   // normalised for matching
+  "phone":      "+15551234567",
+  "dob":        "1995-06-15",
+  "gender":     "female",
+  "program":    "web-development",
+  "source":     "social-media",
+  "address":    { "line1": "", "city": "", "state": "", "zip": "" },
+  "status":     "new",                // new | verified | rejected
+  "createdAt":  &lt;serverTimestamp&gt;,     // UTC
+  "createdDate":"2026-06-11",         // for date-range queries
+  "dupKey":     "jane@example.com|+15551234567"
+}</code></pre>
+
+  <div class="grid2">
+    <div>
+      <h3>Collection: <code>meta/counters</code></h3>
+      <pre><code>{ "enrollmentSeq": 42,
+  "year": 2026 }</code></pre>
+      <p class="small">Incremented +1 inside the enrollment transaction to mint sequential IDs.</p>
+    </div>
+    <div>
+      <h3>Collection: <code>admins/{uid}</code></h3>
+      <pre><code>{ "email": "admin@client.com",
+  "role":  "admin",
+  "active": true }</code></pre>
+      <p class="small">Document ID = Firebase Auth UID. Managed from the console.</p>
+    </div>
+  </div>
+
+  <h3>Collection: <code>dupKeys/{email:…|phone:…}</code></h3>
+  <p>No-PII marker docs used to block duplicate email/phone within the enrollment transaction. Existence-checkable and creatable by the public; not listable.</p>
+
+  <h3>Status lifecycle (FR-2.9)</h3>
+  <p><span class="pill-new">new</span> (on submission) &nbsp;→&nbsp; <span class="pill-ok">verified</span> &nbsp;or&nbsp; <span style="color:#dc2626;font-weight:600">rejected</span> &nbsp;(set by an admin on the detail page).</p>
+</div>
+
+<!-- ════════════════ 10. SECURITY ════════════════ -->
+<div class="section">
+  <h2>10. Security Rules</h2>
+  <p>All access control lives in <code>firestore.rules</code>. Summary of the enforced model (NFR-3):</p>
+  <table>
+    <tr><th>Collection</th><th>Public (unauthenticated)</th><th>Admin</th></tr>
+    <tr><td><code>enrollments</code></td><td><b>create only</b>, and only if the document has the required keys, a valid email, a non-empty name, <code>status == "new"</code>, and <code>createdAt == request.time</code>. <b>Cannot read.</b></td><td>read / update / delete</td></tr>
+    <tr><td><code>meta/counters</code></td><td>read + increment, but only by exactly <b>+1</b></td><td>full</td></tr>
+    <tr><td><code>dupKeys</code></td><td>get (existence) + create; <b>cannot list</b></td><td>update / delete</td></tr>
+    <tr><td><code>admins</code></td><td>read own doc only; <b>writes forbidden</b></td><td>read own doc (writes via console)</td></tr>
+  </table>
+  <pre><code>function isAdmin() {
+  return request.auth != null &&
+    exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+}
+
+match /enrollments/{id} {
+  allow create: if incomingIsValid();      // shape + email + status:"new"
+  allow read, update, delete: if isAdmin();
+}
+match /meta/counters {
+  allow update: if request.resource.data.enrollmentSeq
+                   == resource.data.enrollmentSeq + 1;   // +1 only
+}</code></pre>
+  <div class="ok"><b>Verified:</b> 8 automated rule tests confirm anonymous users cannot read enrollments, cannot write <code>admins</code>, cannot create non-<code>"new"</code> records, and cannot jump the counter by more than one — while admins can read. See §12.</div>
+</div>
+
+<!-- ════════════════ 11. BUILD & DEPLOY ════════════════ -->
+<div class="section">
+  <h2>11. Build &amp; Deployment</h2>
+  <h3>Production build</h3>
+  <pre><code>npm run build        # type-checks, then builds to dist/
+npm run preview      # optional: serve dist/ locally to verify</code></pre>
+  <p>The build is code-split — example output:</p>
+  <table>
+    <tr><th>Chunk</th><th>Loaded for</th></tr>
+    <tr><td><code>index-*.js</code> (React, Firebase, form)</td><td>every page</td></tr>
+    <tr><td><code>DashboardPage-*.js</code> (Recharts)</td><td>admin dashboard only</td></tr>
+    <tr><td><code>EnrollmentsPage-*.js</code> (SheetJS)</td><td>admin table only</td></tr>
+  </table>
+
+  <h3>Deploy to Firebase Hosting</h3>
+  <pre><code>firebase login
+firebase use &lt;your-project-id&gt;
+npm run build
+firebase deploy --only hosting,firestore:rules,firestore:indexes</code></pre>
+  <p>Hosting serves the SPA with a catch-all rewrite to <code>index.html</code>; HTTPS is automatic. Connect a custom domain in the Firebase Hosting console.</p>
+</div>
+
+<!-- ════════════════ 12. TESTING ════════════════ -->
+<div class="section">
+  <h2>12. Testing &amp; Verification</h2>
+  <p>Three verification suites ship with the project (run against the emulator).</p>
+
+  <h3>Security-rule &amp; data-path tests — <code>npm run verify:rules</code></h3>
+  <p>Uses the Firebase SDK to assert the rules behave correctly. <b>Result: 8/8 passing.</b></p>
+  <ul>
+    <li>anonymous CANNOT read enrollments</li>
+    <li>anonymous CAN create a valid enrollment</li>
+    <li>create with missing fullName is rejected</li>
+    <li>create with status ≠ "new" is rejected</li>
+    <li>anonymous CANNOT write to admins</li>
+    <li>counter cannot jump by +2 / +1 increment allowed</li>
+    <li>admin CAN read enrollments</li>
+  </ul>
+
+  <h3>End-to-end UI test — <code>npm run verify:e2e</code></h3>
+  <p>Drives the real UI in headless Chrome. <b>Result: 7/7 passing.</b></p>
+  <ul>
+    <li>enroll page renders</li>
+    <li>submission succeeds with a sequential reference number</li>
+    <li>duplicate email is blocked</li>
+    <li>admin login → dashboard shows totals</li>
+    <li>enrollments table renders paginated rows</li>
+    <li>search finds the new enrollment</li>
+    <li>no uncaught page errors</li>
+  </ul>
+  <div class="note">The e2e test needs a Chrome/Chromium binary; set <code>CHROME_PATH</code> if it isn't at <code>/usr/bin/google-chrome</code>.</div>
+
+  <h3>Manual test checklist</h3>
+  <p>Form validation per field · duplicate blocked · ID uniqueness under load · anonymous read denied · admin login (wrong password, logout, session) · pagination &gt;100 records · filters/search correctness · export opens in Excel and matches the view · mobile rendering at 360px · timezone display.</p>
+</div>
+
+<!-- ════════════════ 13. TROUBLESHOOTING ════════════════ -->
+<div class="section">
+  <h2>13. Troubleshooting</h2>
+  <table>
+    <tr><th>Symptom</th><th>Cause / Fix</th></tr>
+    <tr><td>Emulator won't start: "port taken"</td><td>Another service holds 8080/9099. Change the ports in <code>firebase.json</code> (or a config override) and set the matching <code>VITE_*_EMULATOR_PORT</code> values in <code>.env</code>.</td></tr>
+    <tr><td>"Could not start Firestore Emulator"</td><td>Java is not on the PATH. Install a JDK (11+).</td></tr>
+    <tr><td>Admin login succeeds but dashboard is blocked</td><td>The user has no <code>admins/{uid}</code> document. Create one with the user's UID (emulator mode: <code>npm run seed</code> does this).</td></tr>
+    <tr><td>Dashboard/table empty</td><td>No data yet. Submit via the form, or run <code>npm run seed</code> in emulator mode.</td></tr>
+    <tr><td>"Missing or insufficient permissions"</td><td>Rules not deployed, or reading as a non-admin. Deploy rules; confirm the admin doc exists.</td></tr>
+    <tr><td>Query needs an index</td><td>Deploy <code>firestore.indexes.json</code>, or click the console link in the error to auto-create.</td></tr>
+    <tr><td>Submission blocked unexpectedly</td><td>Duplicate guard matched an existing email/phone. Set <code>VITE_BLOCK_DUPLICATES=false</code> to allow repeats.</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════ 14. TRACEABILITY ════════════════ -->
+<div class="section">
+  <h2>14. Requirement Traceability</h2>
+  <table>
+    <tr><th>Requirement</th><th>Implementation</th></tr>
+    <tr><td>FR-1.1–1.6 enrollment form &amp; reference no.</td><td><code>pages/EnrollPage.tsx</code>, <code>SuccessPage.tsx</code>, <code>lib/enrollments.ts</code></td></tr>
+    <tr><td>FR-1.3 client validation</td><td><code>config/validation.ts</code> (Zod from schema)</td></tr>
+    <tr><td>FR-1.4 duplicate prevention</td><td>transaction guard + <code>dupKeys</code> rules</td></tr>
+    <tr><td>FR-1.5 sequential unique ID</td><td><code>meta/counters</code> transaction</td></tr>
+    <tr><td>FR-2.1 admin auth</td><td><code>context/AuthContext.tsx</code>, <code>ProtectedRoute.tsx</code></td></tr>
+    <tr><td>FR-2.2 / 2.8 dashboard &amp; charts</td><td><code>admin/DashboardPage.tsx</code>, <code>components/Charts.tsx</code></td></tr>
+    <tr><td>FR-2.3–2.6 table, search, filter, sort, detail</td><td><code>admin/EnrollmentsPage.tsx</code>, <code>hooks/useEnrollments.ts</code>, <code>EnrollmentDetail.tsx</code></td></tr>
+    <tr><td>FR-2.7 CSV/Excel export</td><td><code>lib/export.ts</code></td></tr>
+    <tr><td>FR-2.9 status update</td><td>status select in <code>EnrollmentDetail.tsx</code></td></tr>
+    <tr><td>NFR-1 responsive</td><td>Tailwind responsive layouts</td></tr>
+    <tr><td>NFR-2 performance</td><td>code-splitting, lazy admin bundle</td></tr>
+    <tr><td>NFR-3 security</td><td><code>firestore.rules</code> (verified)</td></tr>
+    <tr><td>NFR-5 10k+ records</td><td>cursor pagination + count aggregation</td></tr>
+    <tr><td>NFR-6 UTC storage / local display</td><td><code>lib/format.ts</code></td></tr>
+  </table>
+  <p class="small">Optional, pending client confirmation and not built: confirmation email (Trigger Email extension, FR-1.7) and file uploads to Firebase Storage (FR-1.8).</p>
+</div>
+
+<!-- ════════════════ 15. APPENDIX ════════════════ -->
+<div class="section">
+  <h2>15. Appendix — Quick Reference</h2>
+  <h3>Local URLs</h3>
+  <table>
+    <tr><th>What</th><th>URL</th></tr>
+    <tr><td>App</td><td>http://localhost:3000/</td></tr>
+    <tr><td>Admin login</td><td>http://localhost:3000/admin/login</td></tr>
+    <tr><td>Emulator UI</td><td>http://localhost:4000/</td></tr>
+  </table>
+  <h3>Demo admin credentials (emulator)</h3>
+  <table>
+    <tr><td>Email</td><td><code>admin@enroll.test</code></td></tr>
+    <tr><td>Password</td><td><code>admin123</code></td></tr>
+  </table>
+  <h3>One-shot local start (emulator mode)</h3>
+  <pre><code>npm install
+npm run emulators     # terminal 1
+npm run seed          # terminal 2
+npm run dev           # terminal 3  →  http://localhost:3000</code></pre>
+  <h3>Related documents</h3>
+  <ul>
+    <li><code>README.md</code> — setup &amp; developer notes</li>
+    <li><code>ADMIN_GUIDE.md</code> — non-technical admin user guide</li>
+    <li><code>Enrollment-System-Requirement-and-Implementation.md</code> — original requirement</li>
+  </ul>
+  <footer>Enrollment System — Technical Documentation · React + Firebase · Generated for project handover</footer>
+</div>
+
+</body>
+</html>
